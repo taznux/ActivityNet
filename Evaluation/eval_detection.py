@@ -1,5 +1,5 @@
 import json
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 import numpy as np
 import pandas as pd
@@ -42,12 +42,12 @@ class ANETdetection(object):
         self.prediction = self._import_prediction(prediction_filename)
 
         if self.verbose:
-            print '[INIT] Loaded annotations from {} subset.'.format(subset)
+            print('[INIT] Loaded annotations from {} subset.'.format(subset))
             nr_gt = len(self.ground_truth)
-            print '\tNumber of ground truth instances: {}'.format(nr_gt)
+            print('\tNumber of ground truth instances: {}'.format(nr_gt))
             nr_pred = len(self.prediction)
-            print '\tNumber of predictions: {}'.format(nr_pred)
-            print '\tFixed threshold for tiou score: {}'.format(self.tiou_thresholds)
+            print('\tNumber of predictions: {}'.format(nr_pred))
+            print('\tFixed threshold for tiou score: {}'.format(self.tiou_thresholds))
 
     def _import_ground_truth(self, ground_truth_filename):
         """Reads ground truth file, checks if it is well formatted, and returns
@@ -68,13 +68,13 @@ class ANETdetection(object):
         with open(ground_truth_filename, 'r') as fobj:
             data = json.load(fobj)
         # Checking format
-        if not all([field in data.keys() for field in self.gt_fields]):
+        if not all([field in list(data.keys()) for field in self.gt_fields]):
             raise IOError('Please input a valid ground truth file.')
 
         # Read ground truth data.
         activity_index, cidx = {}, 0
         video_lst, t_start_lst, t_end_lst, label_lst = [], [], [], []
-        for videoid, v in data['database'].iteritems():
+        for videoid, v in data['database'].items():
             if self.subset != v['subset']:
                 continue
             if videoid in self.blocked_videos:
@@ -111,13 +111,13 @@ class ANETdetection(object):
         with open(prediction_filename, 'r') as fobj:
             data = json.load(fobj)
         # Checking format...
-        if not all([field in data.keys() for field in self.pred_fields]):
+        if not all([field in list(data.keys()) for field in self.pred_fields]):
             raise IOError('Please input a valid prediction file.')
 
         # Read predictions.
         video_lst, t_start_lst, t_end_lst = [], [], []
         label_lst, score_lst = [], []
-        for videoid, v in data['results'].iteritems():
+        for videoid, v in data['results'].items():
             if videoid in self.blocked_videos:
                 continue
             for result in v:
@@ -141,7 +141,7 @@ class ANETdetection(object):
         try:
             return prediction_by_label.get_group(cidx).reset_index(drop=True)
         except:
-            print 'Warning: No predictions of label \'%s\' were provdied.' % label_name
+            print('Warning: No predictions of label \'%s\' were provdied.' % label_name)
             return pd.DataFrame()
 
     def wrapper_compute_average_precision(self):
@@ -158,7 +158,7 @@ class ANETdetection(object):
                         ground_truth=ground_truth_by_label.get_group(cidx).reset_index(drop=True),
                         prediction=self._get_predictions_with_label(prediction_by_label, label_name, cidx),
                         tiou_thresholds=self.tiou_thresholds,
-                    ) for label_name, cidx in self.activity_index.items())
+                    ) for label_name, cidx in list(self.activity_index.items()))
 
         for i, cidx in enumerate(self.activity_index.values()):
             ap[:,cidx] = results[i]
@@ -176,8 +176,8 @@ class ANETdetection(object):
         self.average_mAP = self.mAP.mean()
 
         if self.verbose:
-            print '[RESULTS] Performance on ActivityNet detection task.'
-            print '\tAverage-mAP: {}'.format(self.average_mAP)
+            print('[RESULTS] Performance on ActivityNet detection task.')
+            print('\tAverage-mAP: {}'.format(self.average_mAP))
 
 def compute_average_precision_detection(ground_truth, prediction, tiou_thresholds=np.linspace(0.5, 0.95, 10)):
     """Compute average precision (detection task) between ground truth and

@@ -17,7 +17,7 @@ def crosscheck_videos(video_path, ann_file):
     # Read an get video IDs from annotation file
     with open(ann_file, "r") as fobj:
         anet_v_1_0 = json.load(fobj)
-    all_vids = anet_v_1_0["database"].keys()
+    all_vids = list(anet_v_1_0["database"].keys())
     non_existing_videos = []
     for vid in all_vids:
         if vid in existing_vids:

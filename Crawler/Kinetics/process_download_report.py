@@ -39,11 +39,11 @@ status_and_reason_to_message_dict = {
     }
 
 def get_status_and_reason(msg):
-    for s_r, lst in status_and_reason_to_message_dict.iteritems():
+    for s_r, lst in status_and_reason_to_message_dict.items():
         if any([x in msg for x in lst]):
             return s_r
 
-    print("<get_status_and_reason>: error message is not matched with a status and a reason. message:", msg)
+    print(("<get_status_and_reason>: error message is not matched with a status and a reason. message:", msg))
 
     return ('Other', msg)
 

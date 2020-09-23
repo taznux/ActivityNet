@@ -1,5 +1,5 @@
 import json
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 import numpy as np
 import pandas as pd
@@ -47,12 +47,12 @@ class ANETproposal(object):
         self.proposal = self._import_proposal(proposal_filename)
 
         if self.verbose:
-            print '[INIT] Loaded annotations from {} subset.'.format(subset)
+            print('[INIT] Loaded annotations from {} subset.'.format(subset))
             nr_gt = len(self.ground_truth)
-            print '\tNumber of ground truth instances: {}'.format(nr_gt)
+            print('\tNumber of ground truth instances: {}'.format(nr_gt))
             nr_pred = len(self.proposal)
-            print '\tNumber of proposals: {}'.format(nr_pred)
-            print '\tFixed threshold for tiou score: {}'.format(self.tiou_thresholds)
+            print('\tNumber of proposals: {}'.format(nr_pred))
+            print('\tFixed threshold for tiou score: {}'.format(self.tiou_thresholds))
 
     def _import_ground_truth(self, ground_truth_filename):
         """Reads ground truth file, checks if it is well formatted, and returns
@@ -73,13 +73,13 @@ class ANETproposal(object):
         with open(ground_truth_filename, 'r') as fobj:
             data = json.load(fobj)
         # Checking format
-        if not all([field in data.keys() for field in self.gt_fields]):
+        if not all([field in list(data.keys()) for field in self.gt_fields]):
             raise IOError('Please input a valid ground truth file.')
 
         # Read ground truth data.
         activity_index, cidx = {}, 0
         video_lst, t_start_lst, t_end_lst, label_lst = [], [], [], []
-        for videoid, v in data['database'].iteritems():
+        for videoid, v in data['database'].items():
             if self.subset != v['subset']:
                 continue
             if videoid in self.blocked_videos:
@@ -116,13 +116,13 @@ class ANETproposal(object):
         with open(proposal_filename, 'r') as fobj:
             data = json.load(fobj)
         # Checking format...
-        if not all([field in data.keys() for field in self.pred_fields]):
+        if not all([field in list(data.keys()) for field in self.pred_fields]):
             raise IOError('Please input a valid proposal file.')
 
         # Read predictions.
         video_lst, t_start_lst, t_end_lst = [], [], []
         score_lst = []
-        for videoid, v in data['results'].iteritems():
+        for videoid, v in data['results'].items():
             if videoid in self.blocked_videos:
                 continue
             for result in v:
@@ -149,8 +149,8 @@ class ANETproposal(object):
         area_under_curve = np.trapz(avg_recall, proposals_per_video)
 
         if self.verbose:
-            print '[RESULTS] Performance on ActivityNet proposal task.'
-            print '\tArea Under the AR vs AN curve: {}%'.format(100.*float(area_under_curve)/proposals_per_video[-1])
+            print('[RESULTS] Performance on ActivityNet proposal task.')
+            print('\tArea Under the AR vs AN curve: {}%'.format(100.*float(area_under_curve)/proposals_per_video[-1]))
 
         self.recall = recall
         self.avg_recall = avg_recall

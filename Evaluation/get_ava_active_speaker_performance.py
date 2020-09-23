@@ -10,9 +10,9 @@ python -O get_ava_active_speaker_performance.py \
 -v
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+
+
+
 
 import argparse
 import logging
